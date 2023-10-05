@@ -74,6 +74,71 @@ def rotate_img(img, degree):
     modi_img = Image.fromarray(modified_np.astype(np.uint8))
     modi_img.save('imgs/Rotated_img.png', 'PNG')
 
+#rotate_img_rough : 이미지 회전의 homework 버전
+def rotate_img_rough(img, degree, clock_wise=True):
+    degree = degree % 360
+    theta = math.pi * (degree/180)
+
+    ori_x = img.shape[0]
+    ori_y = img.shape[1]
+
+    if clock_wise:
+        trans_np = np.array([
+            [math.cos(theta), math.sin(theta)], 
+            [-math.sin(theta), math.cos(theta)]])
+    else:
+        trans_np = np.array([
+            [math.cos(theta), -math.sin(theta)], 
+            [math.sin(theta), math.cos(theta)]])
+
+
+    modified_np = np.zeros((ori_x, ori_y, 3))
+
+    for xidx in range(ori_x):
+        for yidx in range(ori_y):
+            tmp_np = np.dot(trans_np, np.array([xidx, yidx]))
+
+            tmp_x = int(tmp_np[0])
+            tmp_y = int(tmp_np[1])
+
+            if tmp_x > 0 and tmp_y > 0 and tmp_x < ori_x and tmp_y < ori_y: 
+                modified_np[tmp_x][tmp_y][:] = img[xidx][yidx][:]
+                        
+    modi_img = Image.fromarray(modified_np.astype(np.uint8))
+    modi_img.save('imgs/Rotated_img.png', 'PNG')
+
+def backward_rotate(img, degree, clock_wise=True):
+    degree = degree % 360
+    theta = math.pi * (degree/180)
+
+    ori_x = img.shape[0]
+    ori_y = img.shape[1]
+
+    #역행렬
+    if clock_wise:
+        trans_np = np.array([
+            [math.cos(theta), -math.sin(theta)], 
+            [math.sin(theta), math.cos(theta)]])
+    else:  
+        trans_np = np.array([
+            [math.cos(theta), math.sin(theta)], 
+            [-math.sin(theta), math.cos(theta)]])
+
+    modified_np = np.zeros((ori_x, ori_y, 3))
+
+    for xidx in range(ori_x):
+        for yidx in range(ori_y):
+            tmp_np = np.dot(trans_np, np.array([xidx, yidx]))
+
+            tmp_x = int(tmp_np[0])
+            tmp_y = int(tmp_np[1])
+
+            if tmp_x > 0 and tmp_y > 0 and tmp_x < ori_x and tmp_y < ori_y:
+                modified_np[xidx][yidx][:] = img[tmp_x][tmp_y][:]
+    
+    modi_img = Image.fromarray(modified_np.astype(np.uint8))
+    modi_img.save('imgs/Rotated_img.png', 'PNG')
+
 #translate_img : 이미지 이동
 def translate_img(img, x_move, y_move):
     ori_x = img.shape[0]
@@ -87,3 +152,23 @@ def translate_img(img, x_move, y_move):
 
     modi_img = Image.fromarray(modified_np.astype(np.uint8))
     modi_img.save('imgs/Translated_img.png', 'PNG')
+
+def histogram_equalization(img):
+    H, W = img.shape
+    im2col_img = np.reshape(img, (1, -1))
+    img_hist = np.zeros(256)
+
+    for i in im2col_img[0]:
+        img_hist[i] += 1
+
+    for i in range(1, 256):
+        img_hist[i] += img_hist[i-1]
+    
+    img_hist = img_hist * (255/(H*W))
+    img_hist = np.asarray(img_hist, dtype=int)
+    result_img = np.zeros_like(im2col_img)
+
+    for i in range(H*W):
+        result_img[0][i] = img_hist[im2col_img[0][i]]
+    result_img = np.reshape(result_img, (H, W))
+    return result_img
