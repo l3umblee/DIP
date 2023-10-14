@@ -4,6 +4,7 @@ import cv2
 import numpy as np
 import math
 from PIL import Image
+from util import *
 
 #load_img : 불러온 이미지를 반환
 def load_img(fname):
@@ -184,7 +185,6 @@ def gaussian_filter(img, fsize):
     y /= y.sum() #1D Gaussian filter (vector)
     
     Gx_2d = np.outer(y, y)
-    #Gx_2d를 input_img와 convolution 시켜야 함.
     
     stride = 1
     padding = 1
@@ -192,15 +192,7 @@ def gaussian_filter(img, fsize):
     oh = int((H + 2*padding - fsize)/stride + 1)
     ow = int((W + 2*padding - fsize)/stride + 1)
 
-    padding_img = np.pad(img, ((padding, padding), (padding, padding)), 'constant', constant_values=0)
-    im2col_out = np.zeros((oh*ow, fsize*fsize))
-    cnt = 0
-    for hidx in range(oh):
-        ymax = fsize + hidx
-        for widx in range(ow):
-            xmax = fsize + widx
-            im2col_out[cnt:cnt+fsize*fsize] = padding_img[hidx:ymax, widx:xmax].reshape(1, fsize*fsize)
-            cnt += 1
+    im2col_out = im2col(img, 3, 3, 1, 1)
 
     out = np.dot(im2col_out, Gx_2d.reshape(-1, 1))
     out = out.reshape(H, W)
