@@ -198,3 +198,30 @@ def gaussian_filter(img, fsize):
     out = out.reshape(H, W)
     out = np.asarray(out, dtype=np.uint8)
     return out
+
+#edge_detection : especially, filter size = 3
+def edge_detection(img, fsize=3):
+    H, W = img.shape
+
+    #Sobel filter
+    Gx = np.array([[-1, 0, 1], 
+                   [-2, 0, 2], 
+                   [-1, 0, 1]])
+    Gy = np.array([[1, 2, 1], 
+                   [0, 0, 0], 
+                   [-1, -2, -1]])
+    
+    imgcol = im2col(img, 3, 3)    
+    #Gx_out : X direction Gradient, Gy_out : Y direction Gradient
+    Gx_out = np.dot(imgcol, Gx.reshape(-1, 1))
+    Gy_out = np.dot(imgcol, Gy.reshape(-1, 1))
+
+    Gx_out = np.abs(Gx_out)
+    Gy_out = np.abs(Gy_out)
+    
+    #get magnitude
+    out = np.sqrt((Gx_out**2 + Gy_out**2))
+    out = np.clip(out, 0, 255).astype(np.uint8)
+
+    out = out.reshape(H, W)
+    return out
