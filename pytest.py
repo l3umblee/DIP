@@ -1,13 +1,10 @@
 import sys, os
 sys.path.append(os.pardir)
-from DIPLB.common import load_img, scaling_img, rotate_img, translate_img, rotate_img_rough, backward_rotate
+from DIPLB.common import *
 
-fname = "imgs/testimg_black.png"
+fname = "imgs/test.jpg"
 
-img = load_img(fname)
-
-# scaling_img(img, 2, 2)
-#rotate_img_rough(img, 30)
-#rotate_img(img, 30)
-#translate_img(img, 10, 20)
-backward_rotate(img, 30)
+input_img = load_img(fname, 0)
+#output_img = gaussian_filter(input_img, 7)
+output_img = edge_detection(input_img)
+show_img(output_img)

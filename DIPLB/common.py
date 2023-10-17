@@ -4,13 +4,18 @@ import cv2
 import numpy as np
 import math
 from PIL import Image
-from util import *
+from DIPLB.util import *
 
-#load_img : 불러온 이미지를 반환
-def load_img(fname):
-    img = cv2.imread(fname)
+#load_img : 불러온 이미지를 반환 (only gray)
+def load_img(fname, img_type):
+    img = cv2.imread(fname, img_type)
     
     return img
+
+#show_img : 이미지를 보여줌
+def show_img(img):
+    cv2.imshow('Resultl', img)
+    cv2.waitKey(0)
 
 #scaling_img : 이미지를 확대
 def scaling_img(img, x, y):
@@ -185,14 +190,16 @@ def gaussian_filter(img, fsize):
     y /= y.sum() #1D Gaussian filter (vector)
     
     Gx_2d = np.outer(y, y)
-    
+    max_element = np.sum(Gx_2d)
+    Gx_2d /= max_element
+
     stride = 1
-    padding = 1
+    padding = int((fsize - 1)/2)
 
     oh = int((H + 2*padding - fsize)/stride + 1)
     ow = int((W + 2*padding - fsize)/stride + 1)
 
-    im2col_out = im2col(img, 3, 3, 1, 1)
+    im2col_out = im2col(img, fsize, fsize, 1, padding)
 
     out = np.dot(im2col_out, Gx_2d.reshape(-1, 1))
     out = out.reshape(H, W)
@@ -200,7 +207,7 @@ def gaussian_filter(img, fsize):
     return out
 
 #edge_detection : especially, filter size = 3
-def edge_detection(img, fsize=3):
+def edge_detection(img):
     H, W = img.shape
 
     #Sobel filter
